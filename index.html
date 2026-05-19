@@ -10,41 +10,60 @@
 
   <header>
     <nav>
-      <span class="nav__logo">Project Name</span>
+      <span class="nav__logo">Movie Watchlist</span>
       <div class="nav__links">
         <a href="index.html">Search</a>
-        <a href="saved.html">Saved</a>
-      </div>
-      <div class="nav__actions">
-        <span id="nav-user"></span>
-        <button id="logout-btn" type="button">Logout</button>
+        <a href="watchlist.html">Watchlist</a>
       </div>
     </nav>
   </header>
 
   <main>
 
-    <!-- search / filter form -->
-    <section>
-      <form id="search-form">
-        <!-- add your inputs here (at least 3 different types) -->
-        <button type="submit">Search</button>
+    <section class="search-section">
+      <h1 class="search-section__title">Find Movies & Shows</h1>
+
+      <form id="search-form" class="search-form">
+
+        <input
+          type="text"
+          id="search-input"
+          name="query"
+          class="search-form__input"
+          placeholder="Search movies or shows…"
+          required
+          minlength="1"
+          autocomplete="off"
+        >
+
+        <select id="type-filter" name="type" class="search-form__select">
+          <option value="">All types</option>
+          <option value="movie">Movies</option>
+          <option value="series">Series</option>
+          <option value="episode">Episodes</option>
+        </select>
+
+        <label class="search-form__checkbox-label">
+          <input type="checkbox" id="rated-only" name="rated" class="search-form__checkbox">
+          Rated titles only
+        </label>
+
+        <button type="submit" class="search-form__btn">Search</button>
+
       </form>
     </section>
 
-    <!-- loading and error states -->
     <p id="loading-msg" hidden>Loading…</p>
     <p id="error-msg" hidden></p>
 
-    <!-- dynamically generated cards land here -->
-    <section>
-      <div id="results-grid"></div>
+    <section class="results-section">
+      <div id="results-grid" class="results-grid"></div>
     </section>
 
   </main>
 
-  <footer>
-    <!-- footer content -->
+  <footer class="footer">
+    <p>Movie Watchlist App</p>
   </footer>
 
   <script type="module" src="js/main.js"></script>
