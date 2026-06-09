@@ -1,15 +1,44 @@
-const BASE_URL = ''; // replace with your API base URL
 
-export async function fetchData(endpoint) {
-  // fetch, check response.ok, return response.json()
+const API_KEY = 'cf7447b8';
+const BASE_URL = 'https://www.omdbapi.com/'; // replace with your API base URL
+
+
+//search movies/shows by title
+export async function searchMovies(query, type = '') {
+  const url = `${BASE_URL}?apikey=${API_KEY}&s=${encodeURIComponent(query)}&type=${type}`;
+  
+  const response = await fetch(url);
+
+  //return an error message, when the server is down,no internet, etc.
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  const data = await response.json();
+
+  //if omdb response is false, when the search can't find anything.
+  if (data.Response === 'False') {
+    throw new Error(data.Error);
+  }
+  // if everything goes right, returns the data.
+  return data.Search;
 }
 
-// localStorage helpers — import these wherever you need saved state
-export function getSaved() {
-  const raw = localStorage.getItem('savedItems');
-  return raw ? JSON.parse(raw) : [];
-}
+// movies and shows have their own omdb id, full details will be fetched with this vvv
+export async function getMovieById(imdbID) {
+  const url = `${BASE_URL}?apikey=${API_KEY}&i=${imdbID}&plot=full`;
 
-export function setSaved(items) {
-  localStorage.setItem('savedItems', JSON.stringify(items));
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  const data = await response.json();
+
+  if (data.Response === 'False') {
+    throw new Error(data.Error);
+  }
+
+  return data;
 }
