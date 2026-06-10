@@ -1,48 +1,73 @@
-import { getSaved, setSaved } from './api.js';
+// movieWatchlist- key which we will store the watchlist array in LocalStorage
+const STORAGE_KEY = 'movieWatchlist';
 
-// redirect to login if no user session
-if (!localStorage.getItem('user')) {
-  window.location.href = 'login.html';
+//get full watchlist array from LocalStorage,if nothing is there an empty array. localstorage always returns strings, so it needs to be parsed.
+export function getWatchlist() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+
+  return stored ? JSON.parse(stored) : [];
 }
 
-document.getElementById('nav-user').textContent = localStorage.getItem('user') || '';
+//saves a movie to a watchlist.
+export function saveMovie(movie) {
+  const watchlist = getWatchlist();
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.removeItem('user');
-  document.cookie = 'authorized=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-  window.location.href = 'login.html';
-});
+  //if the button is clicked multiple times, it won't save duplicates
+  if (isMovieSaved(movie.imdbID)) return;
 
-function renderSaved() {
-  const items = getSaved();
-  const grid = document.getElementById('saved-grid');
-  const empty = document.getElementById('saved-empty');
+  // using spread ... operator, add the omdb data and 2 extra properties, watched and rating.
+  const movieToSave = {
+    ...movie,
+    watched: false,
+    rating: 0
+  };
 
-  grid.innerHTML = '';
+  watchlist.push(movieToSave);
 
-  if (!items.length) {
-    empty.hidden = false;
-    return;
-  }
+  //make sure the array is a string, before storing
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(watchlist));
+}
 
-  empty.hidden = true;
+//remove a movie from a watchlist, using the omdb id.
+export function removeMovie(imdbID) {
+  const watchlist = getWatchlist();
 
-  items.forEach(item => {
-    const card = document.createElement('article');
-    // build card content here
+  const updated = watchlist.filter(movie => movie.imdbID !== imdbID);
 
-    const removeBtn = document.createElement('button');
-    removeBtn.type = 'button';
-    removeBtn.textContent = 'Remove';
-    removeBtn.addEventListener('click', () => {
-      const updated = getSaved().filter(saved => saved.id !== item.id);
-      setSaved(updated);
-      renderSaved();
-    });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+}
 
-    card.appendChild(removeBtn);
-    grid.appendChild(card);
+//  function to see if the movie is already on the watchlist,returns a boolean.
+export function isMovieSaved(imdbID) {
+  const watchlist = getWatchlist();
+  return watchlist.some(movie => movie.imdbID === imdbID);
+}
+
+//toggle watched/unwatched status of the movie
+export function toggleWatched(imdbID) {
+  const watchlist = getWatchlist();
+
+  const updated = watchlist.map(movie => {
+    if (movie.imdbID === imdbID) {
+      // flip the watched boolean
+      return { ...movie, watched: !movie.watched };
+    }
+    return movie;
   });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 }
 
-renderSaved();
+//save a star rating for the movie.
+export function setRating(imdbID, rating) {
+  const watchlist = getWatchlist();
+
+  const updated = watchlist.map(movie => {
+    if (movie.imdbID === imdbID) {
+      return { ...movie, rating };
+    }
+    return movie;
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+}
