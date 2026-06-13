@@ -1,37 +1,165 @@
-import { fetchData, getSaved, setSaved } from './api.js';
+import { searchMovies } from './api.js';
+import { renderResults, setLoading, setError } from './ui.js';
+import { getWatchlist, toggleWatched, setRating } from './watchlist.js';
 
-// redirect to login if no user session
-if (!localStorage.getItem('user')) {
-  window.location.href = 'login.html';
+// main.js runs on all three pages, so we check which page we're on
+// and only run the relevant code for that page
+
+const page = document.body.dataset.page;
+
+if (page === 'index') initSearchPage();
+if (page === 'watchlist') initWatchlistPage();
+if (page === 'details') initDetailsPage();
+
+// search page
+
+function initSearchPage() {
+  const form = document.getElementById('search-form');
+
+  form.addEventListener('submit', handleSearch);
 }
 
-document.getElementById('nav-user').textContent = localStorage.getItem('user') || '';
+// handles the search form submission. reads the query and type filter, calls the API, renders results.
+async function handleSearch(e) {
+  // prevent the browser from reloading the page on form submit
+  e.preventDefault();
 
-document.getElementById('logout-btn').addEventListener('click', () => {
-  localStorage.removeItem('user');
-  document.cookie = 'authorized=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-  window.location.href = 'login.html';
-});
+  const query = document.getElementById('search-input').value.trim();
+  const type  = document.getElementById('type-filter').value;
 
-// --- State ---
-// keep your application state as an array of objects
-let savedItems = getSaved();
+  // client-side validation — show feedback if input is empty
+  if (!query) {
+    setError('Please enter a movie or show title.');
+    return;
+  }
 
-function showLoading() {}
+  // clear any previous error and show loading state
+  setError('');
+  setLoading(true);
 
-function showError(message) {}
+  try {
+    const results = await searchMovies(query, type);
+    renderResults(results);
+  } catch (err) {
+    // show the error message from api.js to the user
+    setError(err.message);
+  } finally {
+    // always hide loading, whether the call succeeded or failed
+    setLoading(false);
+  }
+}
 
-function renderResults(items) {
-  // create a card element for each item
-  // the click handler inside forEach closes over the item — this is your closure
-  items.forEach(item => {
-    const card = document.createElement('article');
-    // build and append card content here
-    document.getElementById('results-grid').appendChild(card);
+// watchlist page
+
+function initWatchlistPage() {
+  renderWatchlistPage();
+}
+
+//reads the watchlist from localStorage and renders each saved movie. also wires up the watched toggle and star rating for each item.
+
+function renderWatchlistPage() {
+  const grid = document.getElementById('watchlist-grid');
+  const emptyMsg = document.getElementById('empty-msg');
+  const watchlist = getWatchlist();
+
+  // clear the grid before re-rendering
+  grid.innerHTML = '';
+
+  if (watchlist.length === 0) {
+    emptyMsg.hidden = false;
+    return;
+  }
+
+  emptyMsg.hidden = true;
+
+  // each movie gets its own card with a watched toggle and star rating
+  watchlist.forEach(movie => {
+    const card = createWatchlistCard(movie);
+    grid.appendChild(card);
   });
 }
 
-document.getElementById('search-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  // validate, call fetchData, call showLoading/showError, call renderResults
-});
+//creates a watchlist card element for a saved movie. closes over the movie object to remember which item it belongs to
+ 
+function createWatchlistCard(movie) {
+  const card = document.createElement('div');
+  card.classList.add('card', movie.watched ? 'card--watched' : '');
+
+  const posterSrc = movie.Poster !== 'N/A' ? movie.Poster : 'assets/no-poster.png';
+
+  card.innerHTML = `
+    <img
+      class="card__poster"
+      src="${posterSrc}"
+      alt="Poster for ${movie.Title}"
+    >
+    <div class="card__body">
+      <p class="card__title">${movie.Title}</p>
+      <p class="card__year">${movie.Year}</p>
+      <div class="card__stars" data-id="${movie.imdbID}">
+        ${buildStars(movie.rating)}
+      </div>
+      <button class="card__btn card__btn--watched" data-id="${movie.imdbID}">
+        ${movie.watched ? 'Watched ✓' : 'Mark as Watched'}
+      </button>
+    </div>
+  `;
+
+  // watched toggle  closes over this card's movie object
+  const watchedBtn = card.querySelector('.card__btn--watched');
+  watchedBtn.addEventListener('click', () => {
+    toggleWatched(movie.imdbID);
+    // re-render the whole list so the card reflects the new state
+    renderWatchlistPage();
+  });
+
+  // star rating buttons — each closes over its own star value
+  const stars = card.querySelectorAll('.star');
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      const value = parseInt(star.dataset.value);
+      setRating(movie.imdbID, value);
+      renderWatchlistPage();
+    });
+  });
+
+  return card;
+}
+
+//builds the HTML for 5 star buttons, highlighting the saved rating.
+function buildStars(current) {
+  let html = '';
+  for (let i = 1; i <= 5; i++) {
+    const filled = i <= current ? '★' : '☆';
+    html += `<button class="star" data-value="${i}">${filled}</button>`;
+  }
+  return html;
+}
+
+// details page
+
+async function initDetailsPage() {
+  // read the movie ID from the URL — e.g. details.html?id=tt0468569
+  const params = new URLSearchParams(window.location.search);
+  const imdbID = params.get('id');
+
+  if (!imdbID) {
+    document.getElementById('movie-detail').textContent = 'No movie selected.';
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // getMovieById is imported inside this function to keep the top-level imports clean — only load what each page needs
+    const { getMovieById } = await import('./api.js');
+    const { renderDetailView } = await import('./ui.js');
+
+    const movie = await getMovieById(imdbID);
+    renderDetailView(movie);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+}
