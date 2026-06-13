@@ -83,10 +83,11 @@ function renderWatchlistPage() {
  
 function createWatchlistCard(movie) {
   const card = document.createElement('div');
-  card.classList.add('card', movie.watched ? 'card--watched' : '');
-
-  const posterSrc = movie.Poster !== 'N/A' ? movie.Poster : 'assets/no-poster.png';
-
+card.classList.add('card');
+if (movie.watched) {
+  card.classList.add('card--watched');
+}
+ const posterSrc = movie.Poster !== 'N/A' ? movie.Poster : 'assets/no-poster.png';
   card.innerHTML = `
     <img
       class="card__poster"
