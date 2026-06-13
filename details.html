@@ -3,25 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Details — Movie Watchlist</title>
+  <title>Movie Details — MovieWatch</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="details">
+
   <header>
     <nav>
-      <span class="nav__logo">Movie Watchlist</span>
+      <span class="nav__logo">MovieWatch</span>
       <div class="nav__links">
         <a href="index.html">Search</a>
         <a href="watchlist.html">Watchlist</a>
       </div>
     </nav>
   </header>
+
   <main>
-    <article id="movie-detail">
-      <!-- JS will inject the movie info here -->
-    </article>
+    <a href="index.html" class="back-link">← Back to Search</a>
+    <p id="loading-msg" hidden>Loading…</p>
+    <p id="error-msg" hidden></p>
+    <article id="movie-detail"></article>
   </main>
-  <footer></footer>
+
+  <footer class="footer">
+    <p>MovieWatch</p>
+  </footer>
+
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

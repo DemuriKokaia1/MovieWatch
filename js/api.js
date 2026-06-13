@@ -1,5 +1,5 @@
 
-const API_KEY = 'cf7447b8';
+const API_KEY = '9a81fab9';
 const BASE_URL = 'https://www.omdbapi.com/'; // replace with your API base URL
 
 
