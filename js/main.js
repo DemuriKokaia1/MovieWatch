@@ -55,10 +55,10 @@ async function handleSearch(e) {
   const type  = document.getElementById('type-filter').value;
 
   // client-side validation — show feedback if input is empty
-  if (!query) {
-    setError('Please enter a movie or show title.');
-    return;
-  }
+ if (!query || query.length < 2) {
+  setError('Please enter at least 4 characters to search.');
+  return;
+}
 
   // clear any previous error and show loading state
   setError('');
