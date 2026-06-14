@@ -11,12 +11,39 @@ if (page === 'index') initSearchPage();
 if (page === 'watchlist') initWatchlistPage();
 if (page === 'details') initDetailsPage();
 
+//debounce, a closure that delays calling a function until the user stops triggering it, the timer is kept inside the closure scope
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
 // search page
 
 function initSearchPage() {
   const form = document.getElementById('search-form');
+  const input = document.getElementById('search-input');
 
   form.addEventListener('submit', handleSearch);
+
+   const debouncedSearch = debounce(async () => {
+    const query = input.value.trim();
+    if (!query) return;
+    setError('');
+    setLoading(true);
+    try {
+      const type = document.getElementById('type-filter').value;
+      const results = await searchMovies(query, type);
+      renderResults(results);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, 400);
+
+  input.addEventListener('input', debouncedSearch);
 }
 
 // handles the search form submission. reads the query and type filter, calls the API, renders results.
