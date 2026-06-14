@@ -1,27 +1,29 @@
-# Final Project Template
+# MovieWatch
 
-Starter scaffold for the Web Engineering 2026 final project. Open `index.html` in your browser and start building.
+A movie and TV show watchlist app built with HTML, CSS, and JavaScript.
 
-**Replace first:**
-- `BASE_URL` in `js/api.js` — your chosen API's base URL
-- `<title>` on all three HTML pages — your project name
-- Colour variables in `css/style.css`
-- Page names if needed — `login.html` / `saved.html` can be renamed to match your project
+## Features
+-Search for movies and shows using the OMDB API
+-Filter results by -(movie, series, episode)
+-View full details for any title 
+-Add and remove titles from your personal watchlist
+-Mark titles as watched/unwatched
+-Rate titles with a 1–5 star rating ⭐
+-Watchlist persists across page refreshes using localStorage
 
-**File structure:**
-```
-your-project/
-├── index.html        ← main page
-├── login.html        ← login / profile page (rename if needed)
-├── saved.html        ← saved items page (rename if needed)
-├── css/
-│   └── style.css
-├── js/
-│   ├── main.js       ← entry point for index.html
-│   ├── login.js      ← entry point for login.html
-│   ├── saved.js      ← entry point for saved.html
-│   └── api.js        ← fetch logic + localStorage helpers
-└── assets/
-```
+## Pages
 
-See [project requirements](https://github.com/cu-cst-web1-2026-eng/materials/blob/main/lecture_13/final_project/README.md) for the full technical checklist and grading breakdown.
+- `index.html` — search page
+- `watchlist.html` — your saved movies and shows
+- `details.html` — full detail view for a single title
+
+## Technologies
+
+- HTML5, CSS3, JavaScript (ES Modules)
+- OMDB API — https://www.omdbapi.com
+- localStorage for client-side persistence
+- Git and GitHub for version control
+
+## How to Run
+
+Open `index.html` with a local server, personally I use VS Code Live Server.
