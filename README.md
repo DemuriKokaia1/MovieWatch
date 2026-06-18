@@ -36,3 +36,5 @@ A movie and TV show watchlist app built with HTML, CSS, and JavaScript.
 ## How to Run
 
 Open `index.html` with a local server, personally I use VS Code Live Server.
+
+Alternatively: https://moviewatch12.netlify.app/
